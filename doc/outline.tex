@@ -1,0 +1,106 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+\title{Understanding the relationship between weather and seasonal patterns of homicide in Philadelphia}
+\author{Jon Zelner, Sarah Weinstein, Yinchen Wang, \\ Rob Trangucci, Daniel Lee \& Andrew Gelman}
+
+\date{May 2015}
+\maketitle
+
+\section{Introduction}
+
+There is a long-standing interest in sociology and criminology of the association between weather and climate events and the incidence of violent and property crimes \cite{Anderson:1997ve,Sorg:2011ex}. These studies have suggested that hot weather increases the incidence of violent crime, ostensibly because warmer temperatures both make individuals more irritable and forces them outdoors into contexts in which they are more likely to come into contact with each other.
+
+Although this line of explanation appears sensible, work in this area has been largely correlative and is far from conclusive. In particular, there has been little attention paid to the mechanisms by which these seasonal effects may operate to produce elevated crime rates during warmer weather. Specifically, spatiotemporal patterns of violent crime that ebb and flow with variation in the weather may reflect either:
+
+\begin{enumerate}
+\item  Local risk factors that increase the likelihood of spontaneous events, i.e. those in which we lack an observable antecedent to a crime or
+\item  Localized escalation of events in which earlier, less-severe violent crime events eventually result in a homicide.
+\end{enumerate}
+
+This notion of escalation as a key factor in the run-up to homicide provides the motivation behind programs such as CeaseFire, which have sought to prevent this escalation via interpersonal mediation. Understanding the importance of sequences of observable crimes in the run-up to homicide, then, has obvious implications for public policy. And understanding whether and to what extent these mechanisms are impacted by fluctuations in weather and other seasonal drivers, e.g. school terms, will be important for the strategic deployment of scarce resources for prevention.
+
+\section{Methods}
+
+\subsection{Data}
+
+To address these questions, we use spatiotemporally explicit data on all Part 1 crimes in Philadelphia from 2006-2014. Part 1 crimes are defined by the FBI's Uniform Crime Reporting program as comprising criminal homicide, forcible rape, robbery, aggravated assault, burglary, larcency, and motor vehicle theft. Crime data are time-stamped by the time of dispatch and include a (longitude, latitude) geocode for the crime location.Daily high and average-temperature data for Philadelphia were obtained from the Pennsylvania state climatologist.
+
+\subsection{Models \& Analysis}
+
+This section is more of a to-do list at this point, laid out in what I think is the best rough order of operations:
+
+\subsubsection{Data Cleaning/Munging}
+
+\begin{enumerate}
+
+\item Ensure that weather data and crime data are merge-able, i.e. have timestamps in the same format and cover the same period.
+
+\item Make two reduced city-level datasets with counts of each crime-type by day and week for the purpose of generating descriptives and plots.
+
+\end{enumerate}
+
+\subsubsection{Descriptives}
+
+\begin{enumerate}
+
+\item Time-series plots of all Part 1 crimes over the study period, ideally in a multi-panel layout arranged vertically w/homicides at the top.
+
+\item Time-series plots of high, low, and average temperatures for Philadelphia over the study period.
+
+\item Plots of each crime type vs. average temperature for the day of the crime.
+
+\item Scatterplot matrix of bivariate relationship between weekly crime counts (daily likely to have a lot of zeroes and not terribly informative.
+
+\end{enumerate}
+
+\end{document}
