@@ -54,4 +54,7 @@ This section is more of a to-do list at this point, laid out in what I think is 
 
 \end{enumerate}
 
+\bibliography{ref.bib}{}
+\bibliographystyle{plain}
+
 \end{document}
