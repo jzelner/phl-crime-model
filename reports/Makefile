@@ -1,8 +1,10 @@
-all: outline.tex outline.pdf
+filestem := outline
 
-tex: outline.tex
+all: $(filestem).tex $(filestem).pdf
 
-pdf: outline.pdf
+tex: $(filestem).tex
+
+pdf: $(filestem).pdf
 
 outline.tex : outline.Rnw
 	$(info ************  CONVERTING KNITR TO TEX  ************)
@@ -16,5 +18,15 @@ outline.pdf : outline.tex
 	pdflatex outline.tex
 	$(info ************  CLEANING UP  ************)
 	rm outline.aux outline.tex outline.bbl outline.blg outline.dvi outline.log
+
+watch:
+	watchman watch "$(shell pwd)"
+	watchman -- trigger "$(shell pwd)" remake *.Rnw -- make pdf
+
+unwatch:
+	watchman watch-del "$(shell pwd)"
+
+
 clean:
-	rm outline.pdf 
+	rm $(filestem).pdf 
+
