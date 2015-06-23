@@ -4,7 +4,7 @@
 \title{Understanding the relationship between weather and seasonal patterns of homicide in Philadelphia}
 \author{Jon Zelner, Sarah Weinstein, Yichen Wang, \\ Rob Trangucci, Daniel Lee \& Andrew Gelman}
 
-\date{May 2015}
+\date{\today}
 \maketitle
 
 \section{Introduction}
