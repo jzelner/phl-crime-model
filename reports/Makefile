@@ -1,4 +1,4 @@
-filestem := outline
+filestem := self_exciting_violent_crime
 
 all: $(filestem).tex $(filestem).pdf
 
@@ -6,18 +6,18 @@ tex: $(filestem).tex
 
 pdf: $(filestem).pdf
 
-outline.tex : outline.Rnw
+$(filestem).tex : $(filestem).Rnw
 	$(info ************  CONVERTING KNITR TO TEX  ************)
-	Rscript -e "require(knitr); knit('outline.Rnw')"
+	Rscript -e "require(knitr); knit('$(filestem).Rnw')"
 
-outline.pdf : outline.tex
+$(filestem).pdf : tex
 	$(info ************  COMPILING PDF  ************)
-	latex outline.tex
-	bibtex outline.aux
-	latex outline.tex
-	pdflatex outline.tex
+	latex $(filestem).tex
+	bibtex $(filestem).aux
+	latex $(filestem).tex
+	pdflatex $(filestem).tex
 	$(info ************  CLEANING UP  ************)
-	rm outline.aux outline.tex outline.bbl outline.blg outline.dvi outline.log
+	rm $(filestem).aux $(filestem).tex $(filestem).bbl $(filestem).blg $(filestem).dvi $(filestem).log
 
 watch:
 	watchman watch "$(shell pwd)"

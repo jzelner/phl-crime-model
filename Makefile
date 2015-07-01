@@ -13,3 +13,8 @@ cache/crime/police_inct_clean.csv : munge/clean_crime_data.R data/crime/police_i
 cache/crime/daily_crime_counts.csv : munge/generate_daily_crime_counts.R cache/crime/police_inct_clean.csv
 	$(info **** PROCESSING RAW CRIME DATA INTO CITY-WIDE DAILY COUNTS ****)
 	./$< -d $(word 2, $^) -o $@
+
+###################################################################################
+## MAKING FIGURES
+graphs/counts/*.pdf : src/weekly_counts.R cache/crime/daily_crime_counts.csv
+	./$<
