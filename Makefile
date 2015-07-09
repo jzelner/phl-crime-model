@@ -18,3 +18,18 @@ cache/crime/daily_crime_counts.csv : munge/generate_daily_crime_counts.R cache/c
 ## MAKING FIGURES
 graphs/counts/*.pdf : src/weekly_counts.R cache/crime/daily_crime_counts.csv
 	./$<
+
+################################################################################
+## MAKING MOVIE
+output/movie/movie.mp4 : src/movie/movie.R cache/crime/police_inct_clean.csv
+	./$< -d $(word 2, $^) -o $@
+
+################################################################################
+## Make input dataset for point-process model
+max_d := 2
+max_t := 60
+
+cache/point_data.csv : munge/point_data.R cache/crime/police_inct_clean.csv
+	./$< -d $(word 2, $^) -o $@ -t $(max_t) -x $(max_d)
+
+
