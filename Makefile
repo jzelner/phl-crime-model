@@ -14,6 +14,12 @@ cache/crime/daily_crime_counts.csv : munge/generate_daily_crime_counts.R cache/c
 	$(info **** PROCESSING RAW CRIME DATA INTO CITY-WIDE DAILY COUNTS ****)
 	./$< -d $(word 2, $^) -o $@
 
+## Rasterize neighborhood-level data
+cache/spatial/phl_raster.grd : munge/rasterize.R data/spatial/Neighborhoods_Philadelphia.geojson
+	$(info **** CREATING CITY-LEVEL RASTER FOR ALL NEIGHBORHOODS ****)
+	./$< -d $(word 2, $^) -o $@
+
+##
 ###################################################################################
 ## MAKING FIGURES
 graphs/counts/*.pdf : src/weekly_counts.R cache/crime/daily_crime_counts.csv
@@ -28,7 +34,6 @@ output/movie/movie.mp4 : src/movie/movie.R cache/crime/police_inct_clean.csv
 ## Make input dataset for point-process model
 max_d := 2
 max_t := 60
-
 cache/point_data.csv : munge/point_data.R cache/crime/police_inct_clean.csv
 	./$< -d $(word 2, $^) -o $@ -t $(max_t) -x $(max_d)
 
