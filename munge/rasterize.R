@@ -7,7 +7,8 @@ require(docopt)
 Options:
    -d Geographic data in geojson format [default: data/spatial/Neighborhoods_Philadelphia.geojson]
    -o Output raster [default: cache/spatial/phl_raster.grd]
-   -x Dimensions of raster grid [default: 50,50]
+   -a Area of raster grid cells (in KM) [default: 0.25]
+   -z UTM zone [default: 17]
 ' -> doc
 
 opts <- docopt(doc)
@@ -24,13 +25,22 @@ require(readr)
 dims <- as.numeric(str_split(opts$x,",")[[1]])
 
 ## Load up philly shapefile
-m <- readOGR(opts$d, "OGRGeoJSON")
+readOGR(opts$d, "OGRGeoJSON") %>>%
+
+## Project to utm
+spTransform(CRS=CRS(sprintf("+proj=utm +zone=%s",opts$z))) -> m
+
+area <- as.numeric(opts$a)
 
 ## Get extent of map
 ext <- extent(m)
+ncol <- ceiling(((ext@xmax-ext@xmin)/1000)/sqrt(area))
+nrow <- ceiling(((ext@ymax-ext@ymin)/1000)/sqrt(area))
+
+
 
 ## Create a raster for the shapefile
-r <- raster(ncol = dims[1], nrow = dims[2])
+r <- raster(ncol = ncol, nrow = nrow)
 
 ## Set the extent of the raster to the extent of the shapefile
 extent(r) <- extent(m)
