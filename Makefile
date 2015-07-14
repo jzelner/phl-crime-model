@@ -8,7 +8,12 @@ data : cache/crime/police_inct_clean.csv
 ## Rasterize neighborhood-level data
 cache/spatial/phl_raster.grd : munge/rasterize.R data/spatial/Neighborhoods_Philadelphia.geojson
 	$(info **** CREATING CITY-LEVEL RASTER FOR ALL NEIGHBORHOODS ****)
-	./$< -d $(word 2, $^) -o $@ -x 0.5
+	./$< -d $(word 2, $^) -o $@ -x 0.25
+
+## Create a grid adjacency matrix in terms of 1:N id values (i.e. without NA cells from the original raster)
+cache/spatial/raster_adjacency.csv : munge/adjacency.R cache/spatial/phl_raster.grd
+	$(info **** MAKING RASTER ADJACENCY LIST ****)
+	./$< -d $(word 2, $^) -o $@
 
 ## Get a clean set of crime categories and data only from 1/1/2006-12/31/2014
 ## and corresponding raster squares 

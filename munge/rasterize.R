@@ -48,6 +48,16 @@ extent(r) <- extent(m)
 ## Rasterize at the neighborhood level
 rr <- rasterize(m, r, 'mapname')
 
-## Write raster to file
+## Convert raster to spatial pixels data frame
+raster_length_non_na <- sum(!is.na(values(rr)))
+
+rr %>>%
+{SpatialPoints(coordinates(.)[!is.na(values(.)),], proj4string = CRS(proj4string(.)))} %>>%
+SpatialPixelsDataFrame(data = data.frame(id = 1:raster_length_non_na)) -> spdf
+
+## Convert back to raster with IDs as cell values
+rr <- raster(spdf)
+
 writeRaster(rr, opts$o, overwrite=TRUE)
+
 

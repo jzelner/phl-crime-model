@@ -49,18 +49,17 @@ SpatialPoints(cbind(f_d$POINT_X, f_d$POINT_Y), proj4string=CRS("+proj=longlat"))
 spTransform(CRS=CRS(proj4string(rr))) %>>% (coords) -> utm_coords
 
 ## Extract raster ids
-r_ids <- extract(rr, utm_coords, cellnumbers=TRUE)
+r_ids <- extract(rr, utm_coords)
 
 ## Store UTM coordinates for each point in output data frame
 f_d$UTM_X <- utm_coords[,1]
 f_d$UTM_Y <- utm_coords[,2]
 
 ## Add to data
-f_d$RASTER_CELL <- r_ids[,1]
+f_d$RASTER_CELL <- r_ids
 
 ## Get rid of anything not in the shapefile area
 f_d %>>% subset(!is.na(RASTER_CELL)) -> f_d
-
 ## Make sure the output directory exists before writing to it
 dir.create(dirname(opts$o), showWarnings = FALSE)
 
