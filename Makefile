@@ -25,7 +25,12 @@ cache/crime/daily_crime_counts.csv : munge/generate_daily_crime_counts.R cache/c
 	$(info **** PROCESSING RAW CRIME DATA INTO CITY-WIDE DAILY COUNTS ****)
 	./$< -d $(word 2, $^) -o $@
 
-## Get raster IDs for each 
+## Make a raster stack with counts for every crime type by location
+cache/crime_stack.grd : munge/stack.R cache/spatial/phl_raster.grd cache/crime/police_inct_clean.csv
+	$(info **** MAKING RASTER STACK OF CELL-SPECIFIC COUNTS ****)
+	./$< -s $@ -r $(word 2, $^) -d $(word 3, $^)
+
+
 ###################################################################################
 ## MAKING FIGURES
 graphs/counts/*.pdf : src/weekly_counts.R cache/crime/daily_crime_counts.csv
