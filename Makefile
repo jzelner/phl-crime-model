@@ -17,9 +17,9 @@ cache/spatial/raster_adjacency.csv : munge/adjacency.R cache/spatial/phl_raster.
 
 ## Get a clean set of crime categories and data only from 1/1/2006-12/31/2014
 ## and corresponding raster squares
-cache/crime/police_inct_clean.csv : munge/clean_crime_data.R data/crime/police_inct.csv cache/spatial/phl_raster.grd
+cache/crime/police_inct_clean.csv : munge/clean_crime_data.R data/crime/police_inct.csv cache/spatial/phl_raster.grd data/spatial/Neighborhoods_Philadelphia.geojson
 	$(info **** CLEANING RAW CRIME DATA ***)
-	./$< -d $(word 2, $^) -o $@ -r $(word 3, $^)
+	./$< -d $(word 2, $^) -o $@ -r $(word 3, $^) -g $(word 4, $^) -z 17
 
 
 ###################################################################################
@@ -28,7 +28,7 @@ cache/crime/police_inct_clean.csv : munge/clean_crime_data.R data/crime/police_i
 ## Make a raster stack with counts for every crime type by location
 cache/crime_stack.grd : munge/stack.R cache/spatial/phl_raster.grd cache/crime/police_inct_clean.csv
 	$(info **** MAKING RASTER STACK OF CELL-SPECIFIC COUNTS ****)
-	./$< -s $@ -r $(word 2, $^) -d $(word 3, $^)
+	XB./$< -s $@ -r $(word 2, $^) -d $(word 3, $^)
 
 
 cache/crime/daily_crime_counts.csv : munge/generate_daily_crime_counts.R cache/crime/police_inct_clean.csv
@@ -55,4 +55,4 @@ max_d := 2
 max_t := 60
 ppmdata: cache/input_pairs.csv cache/input_points.csv
 cache/input_pairs%csv cache/input_points%csv : munge/point_data.R cache/crime/police_inct_clean.csv
-	./$< -d $(word 2, $^) -o cache/input_pairs$*csv -p cache/input_points$*csv -t $(max_t) -x $(max_d)
+	./$< -d $(word 2, $^) -p cache/input_pairs$*csv -o cache/input_points$*csv -t $(max_t) -x $(max_d)
