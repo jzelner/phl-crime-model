@@ -45,14 +45,21 @@ for (i in 1:nrow(crime_d)) {
     crime_d$days[i] <- as.numeric(crime_d$DISPATCH_DATE[i]-min(crime_d$DISPATCH_DATE)) +1   
 }
 
-## Make a sequence of weeks from the first to the last
+## Make a sequence of weeks and months from the first to the last
 all_weeks <- seq(from=min(crime_d$DISPATCH_DATE), to = max(crime_d$DISPATCH_DATE), by = "week")
 week_df <- data.frame(total_weeks = 1:length(all_weeks),
                       week = week(all_weeks),
                       year = year(all_weeks))
 
+all_months <- seq(from=min(crime_d$DISPATCH_DATE), to = max(crime_d$DISPATCH_DATE), by = "month")
+month_df <- data.frame(total_months = 1:length(all_months),
+                      week = week(all_months),
+                      year = year(all_months))
+
+
 ## Merge into crime data
 crime_d <- merge(crime_d, week_df, by = c("week", "year"))
+crime_d <- merge(crime_d, month_df, by = c("week", "year"))
 ## For each crime, get the set of crimes with days less than this crime
 ## First, get unique days in dataset
 days <- unique(crime_d$days)
