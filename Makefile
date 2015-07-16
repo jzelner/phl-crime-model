@@ -21,6 +21,11 @@ cache/crime/police_inct_clean.csv : munge/clean_crime_data.R data/crime/police_i
 	$(info **** CLEANING RAW CRIME DATA ***)
 	./$< -d $(word 2, $^) -o $@ -r $(word 3, $^) -g $(word 4, $^) -z 17
 
+## Translate into pairwise distance matrix between neighborhood
+## centroids
+
+cache/neighborhood_distances.csv : munge/neighborhood_distance.R data/spatial/Neighborhoods_Philadelphia.geojson
+	./$< -o $@ -g $(word 2, $^) -z 17
 
 ###################################################################################
 ## DESCRIPTIVES
