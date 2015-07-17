@@ -61,3 +61,6 @@ max_t := 60
 ppmdata: cache/input_pairs.csv cache/input_points.csv
 cache/input_pairs%csv cache/input_points%csv : munge/point_data.R cache/crime/police_inct_clean.csv
 	./$< -d $(word 2, $^) -p cache/input_pairs$*csv -o cache/input_points$*csv -t $(max_t) -x $(max_d)
+
+output/ppm/ppm.csv : src/ppm/ppm.R cache/neighborhood_distances.csv cache/input_points.csv src/ppm/model.stan
+	./$< -o $@ -a $(word 2, $^) -d $(word 3, $^) -m $(word 4, $^)

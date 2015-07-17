@@ -1,17 +1,19 @@
 #!/usr/bin/Rscript
 
-## Author:   Jon Zelner (adapted from code by Kyle Foreman)
+## Author:   Jon Zelner 
 ##           jlz2115@columbia.edu
 ## Date:     14 Jul 2014
 require(docopt)
 
 'Usage:
-   ppm.R [-d <data> -a <adjacency> -m <model>]
+   ppm.R [-d <data> -a <adjacency> -m <model> -o <output> -n <niter>]
 
 Options:
    -a Neighborhood adjacency [default: cache/neighborhood_distances.csv]
    -d Crime point data [default: cache/input_points.csv]
    -m Model file [default: src/ppm/model.stan]
+   -o Model output [default: output/ppm/ppm.csv]
+   -n Number of iterations [default: 1000]
 ' -> doc
 
 opts <- docopt(doc)
@@ -49,6 +51,7 @@ group_by(from) %>>%
 summarize(ID = from_id[1]) %>>%
 select(NEIGHBORHOOD = from, NEIGHBORHOOD_ID = ID) -> neighborhood_ids
 d <- merge(d, neighborhood_ids, by = "NEIGHBORHOOD")
+
 ## Load input into data
 data_in <- list(A=num_a,
                 T = max(d$TOTAL_MONTHS),
@@ -57,25 +60,14 @@ data_in <- list(A=num_a,
                 area = d$NEIGHBORHOOD_ID,
                 dmat=dist_mat)
 
-## init <- list(
-##     list(
-##         log_intensity = rep(0, data_in$T),
-##         beta1 = rep(0, data_in$A),
-##         tau = 1.0,
-##         p = 0.99,
-##         week_alpha = 0.0,
-##         week_beta = 1.0,
-##         week_sigma = 1.0)
-##     )
 
-
-
+## Run model
 m <- stan(
     opts$m,
     data = data_in,
-##    init = init,
+    sample_file = opts$o,
     chains = 1,
-    iter = 1000
+    iter = as.numeric(opts$n)
 )
 
 
