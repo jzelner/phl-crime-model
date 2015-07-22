@@ -27,6 +27,7 @@ require(readr)
 require(raster)
 require(pipeR)
 require(dplyr)
+require(lubridate)
 
 set_cppo('fast');
 
@@ -51,13 +52,16 @@ group_by(from) %>>%
 summarize(ID = from_id[1]) %>>%
 select(NEIGHBORHOOD = from, NEIGHBORHOOD_ID = ID) -> neighborhood_ids
 d <- merge(d, neighborhood_ids, by = "NEIGHBORHOOD")
-
+moy <- month(seq(from = min(d$DISPATCH_DATE), to = max(d$DISPATCH_DATE), by = "month"))
 ## Load input into data
 data_in <- list(A=num_a,
-                T = max(d$TOTAL_MONTHS),
+                T = max(d$TOTAL_MONTHS), ## Total number of months in observation period
+                M = 12, ## Months in a year
                 N = nrow(d),
-                month = d$TOTAL_MONTHS,
+                total_month = d$TOTAL_MONTHS,
+                month = d$MONTH,
                 area = d$NEIGHBORHOOD_ID,
+                moy = moy,
                 dmat=dist_mat)
 
 
