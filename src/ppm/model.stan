@@ -13,22 +13,26 @@ data {
   ## CASE DATA
   ##real t[N];       # Times of observed cases
   int area[N];       # Raster cell the case is in
-  int month[N];      # total month event occurs
-  int week[N];       # week of year in which event occurs
-  int week_month[TW]; # week of year in which each input month occurs
-  int month_week[TW]; # mapping back from total weeks to total month
-  
+  int month[N];      # Month of year when event occurs
+  int total_month[N]; # Month out of total observation period when event occurs
+  vector[T] moy;
+
   ##################################
   ## AREA DATA
   matrix[A,A] dmat;
 }
 
 transformed data {
+  int M; # Number of months
 
   vector[A] area_mu;
-  vector[W] week_mu;
+  vector[T] month_mu;
+  real ir;
   area_mu <- rep_vector(0, A);
-  week_mu <- rep_vector(0, W);
+  month_mu <- rep_vector(0, T);
+  M <- 12;
+
+
 }
 parameters {
 
@@ -36,17 +40,18 @@ parameters {
   ## DECLARATIONS
 
   ## Model parameters
-  vector[A] alpha;           # area-specific random effect (CAR)
-  vector[T-1] log_intensity;   # weekly average log-intensity
-  vector[W] log_week_intensity;
+  vector[A] alpha;           # area-specific random effect (GP)
+  vector[T] log_intensity;   # weekly average log-intensity
+  // vector[11] month_beta_raw;
 
   # Seasonal parameters
-  real<lower=0> month_sigma;  # variance of random walk for AR1
+  real month_alpha;           # intercept of AR1 process
+
   
   ## GP
   real<lower=0> eta_sq[2];
-  real<lower=0> rho_sq[2];
-  real<lower=0> sigma_sq[2];
+  real<lower=0> rho_sq[2]; 
+  real<lower=0> sigma_sq[2]; # Noise terms only for the full vars
 
 }
 transformed parameters {
@@ -54,15 +59,18 @@ transformed parameters {
   ################################
   ## DECLARATIONS
   vector[A] alpha_stz;    # Area-specific means constrained to sum to zero
-  vector[T] log_intensity_stz;
+  vector[T] month_stz;
+  vector[12] month_beta;
+
   ################################
   ## TRANSFORMATION
   alpha_stz <- alpha-mean(alpha);
-  log_intensity_stz[1] <- 0;
-  for (i in 2:T) {
-    log_intensity_stz[i] <- log_intensity[i-1];
-  }
- 
+  month_stz <- log_intensity-mean(log_intensity);
+  // month_beta[1] <- 0;
+  // for (i in 2:12) {
+  //   month_beta[i] <- month_beta_raw[i-1];
+  // }
+
 }
 
 model {
@@ -70,19 +78,17 @@ model {
   ## DECLARATIONS
 
   real sq_d;
-  real week_d;
+  vector[T] total_intensity;
   ## Covariance matrices for GP components
-  matrix[A,A] Sigma; //Spatially structured covariance
-  matrix[W,W] Week_Sigma;
-  vector[TW] week_intensity;
-  ## Sample AR1 process for weekly intercepts
+  matrix[A,A] Sigma; # Spatially structured covariance
+  matrix[T,T] Month_Sigma; # Covariance for month effects 
 
-  log_intensity ~ normal(0, month_sigma);
 
   # Sample GP hyperparameters
   eta_sq ~ cauchy(0,5);
   rho_sq ~ cauchy(0,5);
   sigma_sq ~ cauchy(0,5);
+
 
 
   ########################################
@@ -98,7 +104,7 @@ model {
 
 
   for (i in 1:A) {
-      Sigma[i,i] <- eta_sq[1]+ sigma_sq[1];
+      Sigma[i,i] <- eta_sq[1] + sigma_sq[1];
   }
 
   ########################################
@@ -110,36 +116,48 @@ model {
         week_d <- fabs(week_d-53);
       }
 
-        ## Covariance function for spatial LTBI intercepts
-        Week_Sigma[i,j] <- eta_sq[2]*exp(-rho_sq[2]*pow(week_d,2));
-        Week_Sigma[j,i] <- Week_Sigma[i,j];
+  ########################################
+  ## Covariance matrix for temporal GP
+  ## Sample individual event times
+
+  for (i in 1:(T-1)) {
+    real sq_t; ## Squared difference in total months
+    real m_d; ## Raw difference in months
+    real sq_m; ## Squared difference in months
+    for (j in (i+1):T) {
+      sq_t <- square(i-j);
+      m_d <- fabs(moy[i]-moy[j]);
+      if (m_d > 6) {
+        m_d <- fabs(m_d-12);
+      }
+
+      sq_m <- square(m_d);
+
+      Month_Sigma[i,j] <- eta_sq[2]*exp(-rho_sq[2]*sq_t); ## Periodic annual component
+      Month_Sigma[j,i] <- Month_Sigma[i,j];
     }
   }
 
+for (i in 1:T) {
+  Month_Sigma[i,i] <- eta_sq[2] + sigma_sq[2];
+ }
 
-  for (i in 1:W) {
-      Week_Sigma[i,i] <- eta_sq[2] + sigma_sq[2];
-  }
-
-  alpha ~ multi_normal(area_mu, Sigma);
-  log_week_intensity ~ multi_normal(week_mu, Week_Sigma);
-  ## Sample individual event times
-
- 
+## Sample monthly intensity
+log_intensity ~ multi_normal(month_mu, Month_Sigma);
+  
   ## First, log-likelihood for observed events
  for (i in 1:N) {
-   increment_log_prob(log_week_intensity[week[i]]+log_intensity_stz[month[i]]+alpha_stz[area[i]]);
+   increment_log_prob(month_alpha + month_stz[total_month[i]]+alpha_stz[area[i]]);
  }
-for (i in 1:TW) {
-  week_intensity[i] <- exp(log_intensity_stz[month_week[i]]+log_week_intensity[week_month[i]]);
-}
+
+     for (i in 1:T) {
+       total_intensity[i] <- month_alpha + month_stz[i];# + month_beta[month[i]];
+     }
 ## Now log-likelihood contribution for non-infection,
 ## which is just the sum of weekly contributions multiplied
 ## by the sum of the area-level random effects
-// print(exp(log_week_intensity))
-// print(sum(week_intensity)*sum(exp(alpha_stz)))
-//print(sum(week_intensity)*sum(exp(alpha_stz)))
-increment_log_prob(-(sum(week_intensity)*sum(exp(alpha_stz))));
+increment_log_prob(-(sum(exp(total_intensity))*sum(exp(alpha_stz))));
+
 }
 
 
